@@ -1,8 +1,10 @@
-# Simple Web Application - Master & Toy Pages
+# Master & Toy Control System
 
-A two-page web application demonstrating real-time state synchronization between browser windows using vanilla JavaScript.
+This project contains two components:
+1. A web application for master-toy communication between browser windows
+2. An Arduino sketch for SOS signal transmission
 
-## Features
+## Web Application Features
 
 - **Master Page**: Control panel with 3 toggle buttons (Red, Blue, Green)
 - **Toy Page**: Display with 3 circles that fill/unfill based on button presses
@@ -11,7 +13,7 @@ A two-page web application demonstrating real-time state synchronization between
 - **Real-time Sync**: Changes are instantly reflected across paired windows
 - **State Persistence**: Device IDs and circle states are saved and restored on page reload
 
-## How to Use
+## How to Use the Web Application
 
 ### Basic Setup
 
@@ -68,10 +70,30 @@ python3 -m http.server 8000
 3. Toy page receives event → checks if device ID matches → updates circles
 4. Same process works in reverse for the Open button
 
+## Arduino Component
+
+This project also includes an Arduino sketch for hardware integration.
+
+### SOS Signal Arduino Sketch
+
+- Sends SOS distress signal (. . . - - - . . .) using an LED/bulb
+- Connected to Arduino pin 3
+- Continuous loop transmission
+- Configurable timing for dots and dashes
+
+See [ARDUINO_README.md](ARDUINO_README.md) for detailed Arduino setup, wiring diagram, and usage instructions.
+
 ## Files
 
+### Web Application
 - `master.html` - Control page with toggle buttons and Open message display
 - `toy.html` - Display page with circles and Open button trigger
+
+### Arduino
+- `sos_signal.ino` - Arduino sketch for SOS signal transmission
+- `ARDUINO_README.md` - Arduino setup and usage documentation
+
+### Documentation
 - `README.md` - This file
 
 ## Browser Compatibility
