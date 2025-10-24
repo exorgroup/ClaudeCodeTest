@@ -1,6 +1,26 @@
 # Arduino SOS Signal
 
-An Arduino sketch that sends an SOS distress signal using an LED or bulb connected to pin 3.
+Arduino sketches that send an SOS distress signal using an LED or bulb connected to pin 3.
+
+## Two Versions Available
+
+### 1. Basic Version (sos_signal.ino)
+- **Platform**: Any Arduino (Uno, Nano, Mega, etc.)
+- **Method**: Simple delay-based timing
+- **Best for**: Learning, simple standalone projects
+- **Blocking**: Yes (uses delay())
+
+### 2. Interrupt-Based Version (sos_signal_int.ino)
+- **Platform**: ESP32 only
+- **Method**: Hardware timer interrupts
+- **Best for**: Production systems, multitasking applications
+- **Blocking**: No (non-blocking, runs in background)
+
+See [ESP32_INTERRUPT_README.md](ESP32_INTERRUPT_README.md) for detailed interrupt version documentation.
+
+---
+
+## Basic Version (sos_signal.ino)
 
 ## SOS Pattern
 
@@ -96,7 +116,10 @@ The sketch outputs debug information to the Serial Monitor (9600 baud):
 
 ## Files
 
-- `sos_signal.ino` - The Arduino sketch file
+- `sos_signal.ino` - Basic Arduino sketch (any Arduino board)
+- `sos_signal_int.ino` - Interrupt-based sketch (ESP32 only)
+- `ARDUINO_README.md` - This file (basic version documentation)
+- `ESP32_INTERRUPT_README.md` - Interrupt version detailed documentation
 
 ## Safety Notes
 

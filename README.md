@@ -72,16 +72,31 @@ python3 -m http.server 8000
 
 ## Arduino Component
 
-This project also includes an Arduino sketch for hardware integration.
+This project includes two Arduino sketches for hardware integration.
 
-### SOS Signal Arduino Sketch
+### SOS Signal Arduino Sketches
 
-- Sends SOS distress signal (. . . - - - . . .) using an LED/bulb
-- Connected to Arduino pin 3
-- Continuous loop transmission
+Two versions available:
+
+**1. Basic Version (sos_signal.ino)**
+- Works on any Arduino (Uno, Nano, Mega, etc.)
+- Simple delay-based timing
+- Perfect for learning and standalone projects
+
+**2. Interrupt-Based Version (sos_signal_int.ino)**
+- ESP32 only
+- Hardware timer interrupts for precision
+- Non-blocking - main loop free for other tasks
+- Production-ready for multitasking applications
+
+Both versions:
+- Send SOS distress signal (. . . - - - . . .)
+- Connected to pin 3
 - Configurable timing for dots and dashes
+- Continuous transmission
 
-See [ARDUINO_README.md](ARDUINO_README.md) for detailed Arduino setup, wiring diagram, and usage instructions.
+See [ARDUINO_README.md](ARDUINO_README.md) for basic version documentation.
+See [ESP32_INTERRUPT_README.md](ESP32_INTERRUPT_README.md) for interrupt version documentation.
 
 ## Files
 
@@ -90,8 +105,10 @@ See [ARDUINO_README.md](ARDUINO_README.md) for detailed Arduino setup, wiring di
 - `toy.html` - Display page with circles and Open button trigger
 
 ### Arduino
-- `sos_signal.ino` - Arduino sketch for SOS signal transmission
-- `ARDUINO_README.md` - Arduino setup and usage documentation
+- `sos_signal.ino` - Basic Arduino sketch (any Arduino board)
+- `sos_signal_int.ino` - Interrupt-based sketch (ESP32 only)
+- `ARDUINO_README.md` - Basic version setup and usage documentation
+- `ESP32_INTERRUPT_README.md` - Interrupt version detailed documentation
 
 ### Documentation
 - `README.md` - This file
