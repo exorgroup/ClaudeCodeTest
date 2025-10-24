@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master Page</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f5f5f5;
+        }
+
+        #app {
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        .buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            color: white;
+            transition: opacity 0.2s;
+        }
+
+        button:hover {
+            opacity: 0.8;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .red-btn {
+            background-color: #ef4444;
+        }
+
+        .blue-btn {
+            background-color: #3b82f6;
+        }
+
+        .green-btn {
+            background-color: #10b981;
+        }
+
+        .status {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <h1>Master Page</h1>
+        <div class="buttons">
+            <button class="red-btn" @click="toggleColor('red')">Red</button>
+            <button class="blue-btn" @click="toggleColor('blue')">Blue</button>
+            <button class="green-btn" @click="toggleColor('green')">Green</button>
+        </div>
+        <div class="status">
+            Status: Red {{ states.red ? 'ON' : 'OFF' }} | Blue {{ states.blue ? 'ON' : 'OFF' }} | Green {{ states.green ? 'ON' : 'OFF' }}
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    states: {
+                        red: false,
+                        blue: false,
+                        green: false
+                    }
+                };
+            },
+            methods: {
+                toggleColor(color) {
+                    this.states[color] = !this.states[color];
+                    this.saveState();
+                },
+                saveState() {
+                    localStorage.setItem('circleStates', JSON.stringify(this.states));
+                },
+                loadState() {
+                    const saved = localStorage.getItem('circleStates');
+                    if (saved) {
+                        this.states = JSON.parse(saved);
+                    }
+                }
+            },
+            mounted() {
+                this.loadState();
+
+                // Listen for storage changes from other windows
+                window.addEventListener('storage', (e) => {
+                    if (e.key === 'circleStates' && e.newValue) {
+                        this.states = JSON.parse(e.newValue);
+                    }
+                });
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
