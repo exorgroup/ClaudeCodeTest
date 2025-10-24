@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Master Page</title>
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -118,92 +117,112 @@
         <h1>Master Page</h1>
         <div class="device-id-container">
             <label for="deviceId">Device ID:</label>
-            <input type="text" id="deviceId" v-model="deviceId" @input="saveDeviceId" placeholder="Enter device ID">
+            <input type="text" id="deviceId" placeholder="Enter device ID">
         </div>
-        <div class="open-message" :class="{ hidden: !showOpenMessage }">Open</div>
+        <div class="open-message hidden" id="openMessage">Open</div>
         <div class="buttons">
-            <button class="red-btn" @click="toggleColor('red')">Red</button>
-            <button class="blue-btn" @click="toggleColor('blue')">Blue</button>
-            <button class="green-btn" @click="toggleColor('green')">Green</button>
+            <button class="red-btn" id="redBtn">Red</button>
+            <button class="blue-btn" id="blueBtn">Blue</button>
+            <button class="green-btn" id="greenBtn">Green</button>
         </div>
-        <div class="status">
-            Status: Red {{ states.red ? 'ON' : 'OFF' }} | Blue {{ states.blue ? 'ON' : 'OFF' }} | Green {{ states.green ? 'ON' : 'OFF' }}
+        <div class="status" id="status">
+            Status: Red OFF | Blue OFF | Green OFF
         </div>
     </div>
 
     <script>
-        const { createApp } = Vue;
+        // State
+        let deviceId = '';
+        let states = {
+            red: false,
+            blue: false,
+            green: false
+        };
+        let openMessageTimer = null;
 
-        createApp({
-            data() {
-                return {
-                    deviceId: '',
-                    states: {
-                        red: false,
-                        blue: false,
-                        green: false
-                    },
-                    showOpenMessage: false,
-                    openMessageTimer: null
-                };
-            },
-            methods: {
-                toggleColor(color) {
-                    this.states[color] = !this.states[color];
-                    this.saveState();
-                },
-                saveState() {
-                    if (this.deviceId) {
-                        localStorage.setItem(`circleStates_${this.deviceId}`, JSON.stringify(this.states));
-                    }
-                },
-                loadState() {
-                    if (this.deviceId) {
-                        const saved = localStorage.getItem(`circleStates_${this.deviceId}`);
-                        if (saved) {
-                            this.states = JSON.parse(saved);
-                        }
-                    }
-                },
-                saveDeviceId() {
-                    localStorage.setItem('masterDeviceId', this.deviceId);
-                    this.loadState();
-                },
-                loadDeviceId() {
-                    const saved = localStorage.getItem('masterDeviceId');
-                    if (saved) {
-                        this.deviceId = saved;
-                    }
-                },
-                displayOpenMessage() {
-                    // Clear any existing timer
-                    if (this.openMessageTimer) {
-                        clearTimeout(this.openMessageTimer);
-                    }
+        // DOM Elements
+        const deviceIdInput = document.getElementById('deviceId');
+        const openMessage = document.getElementById('openMessage');
+        const redBtn = document.getElementById('redBtn');
+        const blueBtn = document.getElementById('blueBtn');
+        const greenBtn = document.getElementById('greenBtn');
+        const statusDiv = document.getElementById('status');
 
-                    // Show the message
-                    this.showOpenMessage = true;
+        // Functions
+        function updateStatus() {
+            statusDiv.textContent = `Status: Red ${states.red ? 'ON' : 'OFF'} | Blue ${states.blue ? 'ON' : 'OFF'} | Green ${states.green ? 'ON' : 'OFF'}`;
+        }
 
-                    // Hide after 5 seconds
-                    this.openMessageTimer = setTimeout(() => {
-                        this.showOpenMessage = false;
-                    }, 5000);
-                }
-            },
-            mounted() {
-                this.loadDeviceId();
-                this.loadState();
+        function toggleColor(color) {
+            states[color] = !states[color];
+            updateStatus();
+            saveState();
+        }
 
-                // Listen for storage changes from other windows
-                window.addEventListener('storage', (e) => {
-                    if (this.deviceId && e.key === `circleStates_${this.deviceId}` && e.newValue) {
-                        this.states = JSON.parse(e.newValue);
-                    } else if (this.deviceId && e.key === `openTrigger_${this.deviceId}` && e.newValue) {
-                        this.displayOpenMessage();
-                    }
-                });
+        function saveState() {
+            if (deviceId) {
+                localStorage.setItem(`circleStates_${deviceId}`, JSON.stringify(states));
             }
-        }).mount('#app');
+        }
+
+        function loadState() {
+            if (deviceId) {
+                const saved = localStorage.getItem(`circleStates_${deviceId}`);
+                if (saved) {
+                    states = JSON.parse(saved);
+                    updateStatus();
+                }
+            }
+        }
+
+        function saveDeviceId() {
+            deviceId = deviceIdInput.value;
+            localStorage.setItem('masterDeviceId', deviceId);
+            loadState();
+        }
+
+        function loadDeviceId() {
+            const saved = localStorage.getItem('masterDeviceId');
+            if (saved) {
+                deviceId = saved;
+                deviceIdInput.value = deviceId;
+            }
+        }
+
+        function displayOpenMessage() {
+            // Clear any existing timer
+            if (openMessageTimer) {
+                clearTimeout(openMessageTimer);
+            }
+
+            // Show the message
+            openMessage.classList.remove('hidden');
+
+            // Hide after 5 seconds
+            openMessageTimer = setTimeout(() => {
+                openMessage.classList.add('hidden');
+            }, 5000);
+        }
+
+        // Event Listeners
+        deviceIdInput.addEventListener('input', saveDeviceId);
+        redBtn.addEventListener('click', () => toggleColor('red'));
+        blueBtn.addEventListener('click', () => toggleColor('blue'));
+        greenBtn.addEventListener('click', () => toggleColor('green'));
+
+        // Listen for storage changes from other windows
+        window.addEventListener('storage', (e) => {
+            if (deviceId && e.key === `circleStates_${deviceId}` && e.newValue) {
+                states = JSON.parse(e.newValue);
+                updateStatus();
+            } else if (deviceId && e.key === `openTrigger_${deviceId}` && e.newValue) {
+                displayOpenMessage();
+            }
+        });
+
+        // Initialize
+        loadDeviceId();
+        loadState();
     </script>
 </body>
 </html>

@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Toy Page</title>
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -121,68 +120,99 @@
         <h1>Toy Page</h1>
         <div class="device-id-container">
             <label for="deviceId">Device ID:</label>
-            <input type="text" id="deviceId" v-model="deviceId" @input="saveDeviceId" placeholder="Enter device ID">
+            <input type="text" id="deviceId" placeholder="Enter device ID">
         </div>
         <div class="circles">
-            <div class="circle red" :class="{ filled: states.red }"></div>
-            <div class="circle blue" :class="{ filled: states.blue }"></div>
-            <div class="circle green" :class="{ filled: states.green }"></div>
+            <div class="circle red" id="redCircle"></div>
+            <div class="circle blue" id="blueCircle"></div>
+            <div class="circle green" id="greenCircle"></div>
         </div>
-        <button class="open-button" @click="triggerOpen">Open</button>
+        <button class="open-button" id="openBtn">Open</button>
     </div>
 
     <script>
-        const { createApp } = Vue;
+        // State
+        let deviceId = '';
+        let states = {
+            red: false,
+            blue: false,
+            green: false
+        };
 
-        createApp({
-            data() {
-                return {
-                    deviceId: '',
-                    states: {
-                        red: false,
-                        blue: false,
-                        green: false
-                    }
-                };
-            },
-            methods: {
-                loadState() {
-                    if (this.deviceId) {
-                        const saved = localStorage.getItem(`circleStates_${this.deviceId}`);
-                        if (saved) {
-                            this.states = JSON.parse(saved);
-                        }
-                    }
-                },
-                saveDeviceId() {
-                    localStorage.setItem('toyDeviceId', this.deviceId);
-                    this.loadState();
-                },
-                loadDeviceId() {
-                    const saved = localStorage.getItem('toyDeviceId');
-                    if (saved) {
-                        this.deviceId = saved;
-                    }
-                },
-                triggerOpen() {
-                    // Send timestamp to trigger the Open message on master page
-                    if (this.deviceId) {
-                        localStorage.setItem(`openTrigger_${this.deviceId}`, Date.now().toString());
-                    }
-                }
-            },
-            mounted() {
-                this.loadDeviceId();
-                this.loadState();
+        // DOM Elements
+        const deviceIdInput = document.getElementById('deviceId');
+        const redCircle = document.getElementById('redCircle');
+        const blueCircle = document.getElementById('blueCircle');
+        const greenCircle = document.getElementById('greenCircle');
+        const openBtn = document.getElementById('openBtn');
 
-                // Listen for storage changes from other windows
-                window.addEventListener('storage', (e) => {
-                    if (this.deviceId && e.key === `circleStates_${this.deviceId}` && e.newValue) {
-                        this.states = JSON.parse(e.newValue);
-                    }
-                });
+        // Functions
+        function updateCircles() {
+            if (states.red) {
+                redCircle.classList.add('filled');
+            } else {
+                redCircle.classList.remove('filled');
             }
-        }).mount('#app');
+
+            if (states.blue) {
+                blueCircle.classList.add('filled');
+            } else {
+                blueCircle.classList.remove('filled');
+            }
+
+            if (states.green) {
+                greenCircle.classList.add('filled');
+            } else {
+                greenCircle.classList.remove('filled');
+            }
+        }
+
+        function loadState() {
+            if (deviceId) {
+                const saved = localStorage.getItem(`circleStates_${deviceId}`);
+                if (saved) {
+                    states = JSON.parse(saved);
+                    updateCircles();
+                }
+            }
+        }
+
+        function saveDeviceId() {
+            deviceId = deviceIdInput.value;
+            localStorage.setItem('toyDeviceId', deviceId);
+            loadState();
+        }
+
+        function loadDeviceId() {
+            const saved = localStorage.getItem('toyDeviceId');
+            if (saved) {
+                deviceId = saved;
+                deviceIdInput.value = deviceId;
+            }
+        }
+
+        function triggerOpen() {
+            // Send timestamp to trigger the Open message on master page
+            if (deviceId) {
+                localStorage.setItem(`openTrigger_${deviceId}`, Date.now().toString());
+            }
+        }
+
+        // Event Listeners
+        deviceIdInput.addEventListener('input', saveDeviceId);
+        openBtn.addEventListener('click', triggerOpen);
+
+        // Listen for storage changes from other windows
+        window.addEventListener('storage', (e) => {
+            if (deviceId && e.key === `circleStates_${deviceId}` && e.newValue) {
+                states = JSON.parse(e.newValue);
+                updateCircles();
+            }
+        });
+
+        // Initialize
+        loadDeviceId();
+        loadState();
     </script>
 </body>
 </html>
