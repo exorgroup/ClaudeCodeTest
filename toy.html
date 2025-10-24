@@ -89,11 +89,40 @@
         .open-button:active {
             transform: scale(0.98);
         }
+
+        .device-id-container {
+            margin-bottom: 20px;
+        }
+
+        .device-id-container label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .device-id-container input {
+            width: 100%;
+            padding: 10px;
+            font-size: 14px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .device-id-container input:focus {
+            outline: none;
+            border-color: #8b5cf6;
+        }
     </style>
 </head>
 <body>
     <div id="app">
         <h1>Toy Page</h1>
+        <div class="device-id-container">
+            <label for="deviceId">Device ID:</label>
+            <input type="text" id="deviceId" v-model="deviceId" @input="saveDeviceId" placeholder="Enter device ID">
+        </div>
         <div class="circles">
             <div class="circle red" :class="{ filled: states.red }"></div>
             <div class="circle blue" :class="{ filled: states.blue }"></div>
@@ -108,6 +137,7 @@
         createApp({
             data() {
                 return {
+                    deviceId: '',
                     states: {
                         red: false,
                         blue: false,
@@ -117,22 +147,37 @@
             },
             methods: {
                 loadState() {
-                    const saved = localStorage.getItem('circleStates');
+                    if (this.deviceId) {
+                        const saved = localStorage.getItem(`circleStates_${this.deviceId}`);
+                        if (saved) {
+                            this.states = JSON.parse(saved);
+                        }
+                    }
+                },
+                saveDeviceId() {
+                    localStorage.setItem('toyDeviceId', this.deviceId);
+                    this.loadState();
+                },
+                loadDeviceId() {
+                    const saved = localStorage.getItem('toyDeviceId');
                     if (saved) {
-                        this.states = JSON.parse(saved);
+                        this.deviceId = saved;
                     }
                 },
                 triggerOpen() {
                     // Send timestamp to trigger the Open message on master page
-                    localStorage.setItem('openTrigger', Date.now().toString());
+                    if (this.deviceId) {
+                        localStorage.setItem(`openTrigger_${this.deviceId}`, Date.now().toString());
+                    }
                 }
             },
             mounted() {
+                this.loadDeviceId();
                 this.loadState();
 
                 // Listen for storage changes from other windows
                 window.addEventListener('storage', (e) => {
-                    if (e.key === 'circleStates' && e.newValue) {
+                    if (this.deviceId && e.key === `circleStates_${this.deviceId}` && e.newValue) {
                         this.states = JSON.parse(e.newValue);
                     }
                 });
