@@ -72,11 +72,26 @@
             font-size: 12px;
             color: #666;
         }
+
+        .open-message {
+            font-size: 30px;
+            color: #8b5cf6;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+            transition: opacity 0.3s;
+        }
+
+        .open-message.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
     <div id="app">
         <h1>Master Page</h1>
+        <div class="open-message" :class="{ hidden: !showOpenMessage }">Open</div>
         <div class="buttons">
             <button class="red-btn" @click="toggleColor('red')">Red</button>
             <button class="blue-btn" @click="toggleColor('blue')">Blue</button>
@@ -97,7 +112,9 @@
                         red: false,
                         blue: false,
                         green: false
-                    }
+                    },
+                    showOpenMessage: false,
+                    openMessageTimer: null
                 };
             },
             methods: {
@@ -113,6 +130,20 @@
                     if (saved) {
                         this.states = JSON.parse(saved);
                     }
+                },
+                displayOpenMessage() {
+                    // Clear any existing timer
+                    if (this.openMessageTimer) {
+                        clearTimeout(this.openMessageTimer);
+                    }
+
+                    // Show the message
+                    this.showOpenMessage = true;
+
+                    // Hide after 5 seconds
+                    this.openMessageTimer = setTimeout(() => {
+                        this.showOpenMessage = false;
+                    }, 5000);
                 }
             },
             mounted() {
@@ -122,6 +153,8 @@
                 window.addEventListener('storage', (e) => {
                     if (e.key === 'circleStates' && e.newValue) {
                         this.states = JSON.parse(e.newValue);
+                    } else if (e.key === 'openTrigger' && e.newValue) {
+                        this.displayOpenMessage();
                     }
                 });
             }
